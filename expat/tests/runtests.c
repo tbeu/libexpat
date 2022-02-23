@@ -54,7 +54,7 @@
 #include <ctype.h>
 #include <limits.h>
 #include <stdint.h> /* intptr_t uint64_t */
-#include <math.h>   /* NAN, INFINITY, isnan */
+#include <math.h>   /* isinf, isnan */
 
 #if ! defined(__cplusplus)
 #  include <stdbool.h>
@@ -11762,6 +11762,20 @@ START_TEST(test_accounting_precision) {
 }
 END_TEST
 
+static float
+portableNAN() {
+  const float handmadeNAN = strtof("nan", NULL);
+  assert(isnan(handmadeNAN));
+  return handmadeNAN;
+}
+
+static float
+portableINFINITY() {
+  const float handmadeINFINITY = strtof("infinity", NULL);
+  assert(isinf(handmadeINFINITY));
+  return handmadeINFINITY;
+}
+
 START_TEST(test_billion_laughs_attack_protection_api) {
   XML_Parser parserWithoutParent = XML_ParserCreate(NULL);
   XML_Parser parserWithParent
@@ -11780,7 +11794,7 @@ START_TEST(test_billion_laughs_attack_protection_api) {
       == XML_TRUE)
     fail("Call with non-root parser is NOT supposed to succeed");
   if (XML_SetBillionLaughsAttackProtectionMaximumAmplification(
-          parserWithoutParent, NAN)
+          parserWithoutParent, portableNAN())
       == XML_TRUE)
     fail("Call with NaN limit is NOT supposed to succeed");
   if (XML_SetBillionLaughsAttackProtectionMaximumAmplification(
@@ -11802,7 +11816,7 @@ START_TEST(test_billion_laughs_attack_protection_api) {
       == XML_FALSE)
     fail("Call with positive limit >=1.0 is supposed to succeed");
   if (XML_SetBillionLaughsAttackProtectionMaximumAmplification(
-          parserWithoutParent, INFINITY)
+          parserWithoutParent, portableINFINITY())
       == XML_FALSE)
     fail("Call with positive limit >=1.0 is supposed to succeed");
 
